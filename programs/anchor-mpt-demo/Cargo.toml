@@ -19,9 +19,10 @@ idl-build = ["anchor-lang/idl-build"]
 [dependencies]
 anchor-lang = "0.30.1"
 # eth_trie = "0.4.0"
-ethereum-types = "0.14.1"
+# ethereum-types = "0.14.1"
+primitive-types-solana = "0.1.0"
 num-bigint = "0.4.6"
 rlp = "0.6.1"
-keccak-hash = "0.11.0"
+# keccak-hash = "0.11.0"
 
 hashbrown = "0.14.0"

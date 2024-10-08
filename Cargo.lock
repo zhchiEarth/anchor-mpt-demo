@@ -283,10 +283,9 @@ name = "anchor-mpt-demo"
 version = "0.1.0"
 dependencies = [
  "anchor-lang",
- "ethereum-types",
  "hashbrown 0.14.5",
- "keccak-hash 0.11.0",
  "num-bigint 0.4.6",
+ "primitive-types-solana",
  "rlp 0.6.1",
 ]
 
@@ -1243,7 +1242,7 @@ checksum = "ec3aeb0284b473041df2419a28e3cdf0c64a78d2b9511af4b6e40bad3964b172"
 dependencies = [
  "ethereum-types",
  "hashbrown 0.14.5",
- "keccak-hash 0.10.0",
+ "keccak-hash",
  "log",
  "parking_lot",
  "rlp 0.5.2",
@@ -1272,8 +1271,8 @@ dependencies = [
  "fixed-hash",
  "impl-rlp",
  "impl-serde",
- "primitive-types 0.12.2",
- "uint 0.9.5",
+ "primitive-types",
+ "uint",
 ]
 
 [[package]]
@@ -1885,17 +1884,7 @@ version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4b286e6b663fb926e1eeb68528e69cb70ed46c6d65871a21b2215ae8154c6d3c"
 dependencies = [
- "primitive-types 0.12.2",
- "tiny-keccak",
-]
-
-[[package]]
-name = "keccak-hash"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3e1b8590eb6148af2ea2d75f38e7d29f5ca970d5a4df456b3ef19b8b415d0264"
-dependencies = [
- "primitive-types 0.13.1",
+ "primitive-types",
  "tiny-keccak",
 ]
 
@@ -2354,17 +2343,18 @@ dependencies = [
  "impl-codec",
  "impl-rlp",
  "impl-serde",
- "uint 0.9.5",
+ "uint",
 ]
 
 [[package]]
-name = "primitive-types"
-version = "0.13.1"
+name = "primitive-types-solana"
+version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d15600a7d856470b7d278b3fe0e311fe28c2526348549f8ef2ff7db3299c87f5"
+checksum = "37c97cff0ee8e231f089afc38ec6d6c39470709cccb9888b564b7f41abd1b130"
 dependencies = [
  "fixed-hash",
- "uint 0.10.0",
+ "impl-codec",
+ "uint",
 ]
 
 [[package]]
@@ -4018,18 +4008,6 @@ name = "uint"
 version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "76f64bba2c53b04fcab63c01a7d7427eadc821e3bc48c34dc9ba29c501164b52"
-dependencies = [
- "byteorder",
- "crunchy",
- "hex",
- "static_assertions",
-]
-
-[[package]]
-name = "uint"
-version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "909988d098b2f738727b161a106cfc7cab00c539c2687a8836f8e565976fb53e"
 dependencies = [
  "byteorder",
  "crunchy",

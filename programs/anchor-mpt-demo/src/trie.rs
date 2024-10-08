@@ -1,7 +1,7 @@
-// use std::collections::HashMap;
-
-use ethereum_types::H256;
-use keccak_hash::keccak;
+// use ethereum_types::H256;
+use primitive_types_solana::H256;
+// use keccak_hash::keccak;
+use anchor_lang::solana_program::keccak::hash;
 use rlp::{Prototype, Rlp};
 
 use crate::errors::TrieError;
@@ -57,13 +57,13 @@ impl EthTrie {
         proof: Vec<Vec<u8>>,
     ) -> TrieResult<Option<Vec<u8>>> {
         // let mut proof_db: HashMap<Vec<u8>, Vec<u8>> = HashMap::new();
-        // 不支持 hashMap
+        // 不支持 hashMap·
         let mut key_list: Vec<Vec<u8>> = Vec::new();
         let mut value_list: Vec<Vec<u8>> = Vec::new();
 
         for node_encoded in proof.into_iter() {
-            let hash: H256 = keccak(&node_encoded).as_fixed_bytes().into();
-
+            let hash: H256 = hash(&node_encoded).to_bytes().into();
+            // let hash = hash(&node_encoded);
             if root_hash.eq(&hash) || node_encoded.len() >= HASHED_LENGTH {
                 // proof_db.insert(hash.as_bytes().to_vec(), node_encoded);
                 key_list.push(hash.as_bytes().to_vec());
@@ -72,6 +72,7 @@ impl EthTrie {
         }
         let trie = EthTrie::new(key_list, value_list, root_hash);
         trie.get(key).or(Err(TrieError::InvalidProof))
+        // Ok(None)
     }
 
     fn get_at(

@@ -6,7 +6,7 @@ use {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct MptParams {
-    pub root_hash: String,
+    pub root: String,
     pub key: String,
     pub proof: Vec<String>,
 }
@@ -25,7 +25,7 @@ impl MptParams {
     }
 
     pub fn root(&self) -> String {
-        self.root_hash.to_owned()
+        self.root.to_owned()
     }
 
     pub fn proof(&self) -> Vec<Vec<u8>> {

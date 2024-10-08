@@ -57,7 +57,7 @@ pub fn verify_instruction(program_id: Pubkey, params: &MptParams) -> Instruction
     let instruction_data = ValidateMpt {
         proof: params.proof(),
         key: params.key.clone(),
-        root_hash: params.root_hash.clone(),
+        root_hash: params.root.clone(),
     };
     let mut data = borsh::to_vec(&instruction_data).unwrap();
 

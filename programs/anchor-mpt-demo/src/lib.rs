@@ -1,5 +1,10 @@
-#[warn(dead_code)]
-use {anchor_lang::prelude::*, ethereum_types::H256, rlp::Rlp, std::str::FromStr};
+use {
+    anchor_lang::prelude::*,
+    // ethereum_types::H256,
+    primitive_types_solana::H256,
+    rlp::Rlp,
+    std::str::FromStr,
+};
 
 mod errors;
 mod nibbles;
