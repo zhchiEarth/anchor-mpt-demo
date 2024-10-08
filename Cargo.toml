@@ -1,0 +1,15 @@
+[workspace]
+members = ["cli", "programs/*"]
+resolver = "2"
+
+[workspace.dependencies]
+anchor-mpt-demo = { path = "programs/anchor-mpt-demo" }
+
+[profile.release]
+overflow-checks = true
+lto = "fat"
+codegen-units = 1
+[profile.release.build-override]
+opt-level = 3
+incremental = false
+codegen-units = 1

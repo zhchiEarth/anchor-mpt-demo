@@ -1,0 +1,20 @@
+[package]
+name = "cli"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+eth_trie = "0.4.0"
+ethereum-types = "0.14.1"
+eyre = "0.6.12"
+num-bigint = "0.4.6"
+rlp = "0.6.1"
+serde = { version = "1.0.210", features = ["derive"] }
+serde_json = "1.0.128"
+anchor-mpt-demo = { workspace = true }
+anchor-lang = "0.30.1"
+dotenv = "0.15.0"
+solana-rpc-client = "2.0.10"
+solana-sdk = "2.0.10"

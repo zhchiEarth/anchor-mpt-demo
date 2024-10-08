@@ -1,0 +1,27 @@
+[package]
+name = "anchor-mpt-demo"
+version = "0.1.0"
+description = "Created with Anchor"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "anchor_mpt_demo"
+
+[features]
+default = []
+cpi = ["no-entrypoint"]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+idl-build = ["anchor-lang/idl-build"]
+
+[dependencies]
+anchor-lang = "0.30.1"
+# eth_trie = "0.4.0"
+ethereum-types = "0.14.1"
+num-bigint = "0.4.6"
+rlp = "0.6.1"
+keccak-hash = "0.11.0"
+
+hashbrown = "0.14.0"
