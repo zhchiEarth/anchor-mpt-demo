@@ -24,8 +24,13 @@ impl MptParams {
         big_int.to_bytes_be()
     }
 
-    pub fn root(&self) -> String {
-        self.root.to_owned()
+    pub fn root(&self) -> [u8; 32] {
+        let big_int = BigUint::parse_bytes(self.root.as_bytes(), 16).unwrap();
+        big_int
+            .to_bytes_be()
+            .try_into()
+            .expect("Vector has incorrect length")
+        // self.root.to_owned()
     }
 
     pub fn proof(&self) -> Vec<Vec<u8>> {

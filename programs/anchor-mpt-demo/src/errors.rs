@@ -1,7 +1,6 @@
 use std::error::Error;
 use std::fmt;
 
-// use ethereum_types::H256;
 use primitive_types_solana::H256;
 
 use rlp::DecoderError;
@@ -39,16 +38,5 @@ impl fmt::Display for TrieError {
 impl From<DecoderError> for TrieError {
     fn from(error: DecoderError) -> Self {
         TrieError::Decoder(error)
-    }
-}
-
-#[derive(Debug)]
-pub enum MemDBError {}
-
-impl Error for MemDBError {}
-
-impl fmt::Display for MemDBError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "error")
     }
 }

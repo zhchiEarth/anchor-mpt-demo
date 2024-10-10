@@ -283,7 +283,6 @@ name = "anchor-mpt-demo"
 version = "0.1.0"
 dependencies = [
  "anchor-lang",
- "hashbrown 0.14.5",
  "num-bigint 0.4.6",
  "primitive-types-solana",
  "rlp 0.6.1",

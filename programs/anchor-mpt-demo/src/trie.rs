@@ -1,7 +1,5 @@
-// use ethereum_types::H256;
-use primitive_types_solana::H256;
-// use keccak_hash::keccak;
 use anchor_lang::solana_program::keccak::hash;
+use primitive_types_solana::H256;
 use rlp::{Prototype, Rlp};
 
 use crate::errors::TrieError;
@@ -57,7 +55,7 @@ impl EthTrie {
         proof: Vec<Vec<u8>>,
     ) -> TrieResult<Option<Vec<u8>>> {
         // let mut proof_db: HashMap<Vec<u8>, Vec<u8>> = HashMap::new();
-        // 不支持 hashMap·
+        // 不支持 hashMap
         let mut key_list: Vec<Vec<u8>> = Vec::new();
         let mut value_list: Vec<Vec<u8>> = Vec::new();
 
