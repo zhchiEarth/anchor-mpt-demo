@@ -1,15 +1,20 @@
-use {anchor_lang::prelude::*, primitive_types_solana::H256, rlp::Rlp};
-
-mod errors;
-mod nibbles;
-mod node;
-mod trie;
-
-use trie::*;
+use {
+    alloy_rlp::{decode_exact, RlpDecodable, RlpEncodable},
+    anchor_lang::prelude::*,
+    bytes::Bytes,
+    eth_trie_solana::{EthTrie, MemoryDB, Trie},
+    primitive_types_solana::{H160, H256},
+    std::sync::Arc,
+};
 
 declare_id!("9n2uAscxSNrotCE2PC1DpKgtUFu7iSWEiJpbN9ynqzHp");
 
 pub const PROOF_SEED: &[u8] = b"MptProof";
+// bytes32 public constant MESSAGE_TOPIC = 0xb8abfd5c33667c7440a4fc1153ae39a24833dbe44f7eb19cbe5cd5f2583e4940;
+const MESSAGE_TOPIC: [u8; 32] = [
+    184, 171, 253, 92, 51, 102, 124, 116, 64, 164, 252, 17, 83, 174, 57, 162, 72, 51, 219, 228, 79,
+    126, 177, 156, 190, 92, 213, 242, 88, 62, 73, 64,
+];
 
 #[program]
 pub mod anchor_mpt_demo {
@@ -197,17 +202,69 @@ pub mod anchor_mpt_demo {
         let mpt_account = &ctx.accounts.mpt_proof;
         let root_hash = H256::from_slice(mpt_account.hash_root.as_slice());
 
-        let mut rlp_signed_tx =
-            EthTrie::verify_proof(root_hash, key.as_slice(), mpt_account.data.clone())
-                .unwrap()
-                .unwrap();
+        let memdb = Arc::new(MemoryDB::new(true));
+        let trie = EthTrie::new(memdb.clone());
+        let mut rlp_signed_tx = trie
+            .verify_proof(root_hash, key.as_slice(), mpt_account.data.clone())
+            .unwrap()
+            .unwrap();
+        //todo 交易类型判断
         rlp_signed_tx.remove(0);
 
-        let rlp = Rlp::new(&rlp_signed_tx);
-        msg!("rlp: {:?}", rlp.at(0).unwrap().as_val::<u8>()); //  交易是否成功的状态  u8
-        msg!("rlp: {:?}", rlp.at(1).unwrap().as_val::<u64>()); //  effectiveGasPrice: u64
+        let res: MptData = decode_exact(rlp_signed_tx).unwrap();
+        msg!("tx_status: {}", res.tx_stratus);
+        msg!("effective_gas_price: {}", res.effective_gas_price);
+        let log = &res.logs[1];
+        msg!("log address: {:?}", to_hex_string(log.address.as_slice()));
+
+        let log_message = decode_log_message(log);
+        msg!(
+            "log_message src_address: {:?}",
+            to_hex_string(&log_message.src_address)
+        );
+        msg!(
+            "log_message src_zk_bridge: {:?}",
+            to_hex_string(&log_message.src_zk_bridge)
+        );
+        msg!("log_message nonce: {:?}", log_message.nonce);
+        msg!("log_message dst_chain_id: {:?}", log_message.dst_chain_id);
+        msg!(
+            "log_message dst_address: {:?}",
+            to_hex_string(&log_message.dst_address)
+        );
+        msg!(
+            "log_message payload: {:?}",
+            to_hex_string(&log_message.payload)
+        );
 
         Ok(())
+    }
+}
+
+fn decode_log_message(log: &LogInfo) -> LogMessage {
+    // 不等于
+    if !MESSAGE_TOPIC.eq(&log.topics[0]) {
+        // error
+    }
+    let src_zk_bridge = log.address;
+    let src_address = H160::from_slice(&log.topics[1][12..]).to_fixed_bytes();
+    // let src_address = log.topics[1][12..].try_into().unwrap();
+
+    let dst_chain_id = H256::from_slice(&log.topics[2]).to_low_u64_be() as u16;
+    let nonce = H256::from_slice(&log.topics[3]).to_low_u64_be(); // u64
+
+    let dst_address: [u8; 20] = H160::from_slice(&log.data[12..32]).to_fixed_bytes();
+    // let dst_address: [u8; 20] = log.data[12..32].try_into().unwrap();
+
+    let payload = log.data[32..].to_vec();
+
+    LogMessage {
+        dst_address,
+        dst_chain_id,
+        nonce,
+        src_address,
+        src_zk_bridge,
+        payload,
     }
 }
 
@@ -261,43 +318,31 @@ pub struct InitProofParams {
     // pub data: Vec<Vec<u8>>,
 }
 
-// #[derive(Debug)]
-// pub struct LogInfo {
-//     address: [u8; 20],
-//     topics: Vec<[u8; 32]>,
-//     data: Vec<u8>,
-// }
+#[derive(Debug, RlpDecodable, RlpEncodable)]
+pub struct MptData {
+    pub tx_stratus: u8,
+    pub effective_gas_price: u64,
+    pub logs_bloom: [u8; 256],
+    pub logs: Vec<LogInfo>,
+}
 
-// impl Decodable for LogInfo {
-//     fn decode(rlp: &Rlp) -> Result<Self, DecoderError> {
-//         let address = rlp.at(0).unwrap().data().unwrap().to_owned();
-//         let address: [u8; 20] = match address.try_into() {
-//             Ok(arr) => arr,
-//             Err(e) => {
-//                 // return Err("Failed to convert: {:?}", e);
-//                 return Err(DecoderError::RlpExpectedToBeData);
-//             }
-//         };
+#[derive(Debug, RlpDecodable, RlpEncodable)]
+pub struct LogInfo {
+    pub address: [u8; 20],
+    pub topics: Vec<[u8; 32]>,
+    pub data: Bytes,
+}
 
-//         let mut topic_list = Vec::new();
-//         let topics = rlp.at(1).unwrap();
-//         for topic in topics.iter() {
-//             let value = topic.data().unwrap();
-//             let t: [u8; 32] = match value.try_into() {
-//                 Ok(arr) => arr,
-//                 Err(e) => {
-//                     // return Err("Failed to convert: {:?}", e);
-//                     return Err(DecoderError::RlpExpectedToBeData);
-//                 }
-//             };
-//             topic_list.push(t);
-//         }
-//         let data = rlp.at(2).unwrap().data().unwrap().to_owned();
+#[derive(Debug)]
+struct LogMessage {
+    pub dst_chain_id: u16,
+    pub nonce: u64,
+    pub dst_address: [u8; 20],
+    pub src_address: [u8; 20],
+    pub src_zk_bridge: [u8; 20],
+    pub payload: Vec<u8>,
+}
 
-//         Ok(LogInfo {
-//             address,
-//             topics: topic_list,
-//             data,
-//         })
-//     }
-// }
+fn to_hex_string(bytes: &[u8]) -> String {
+    bytes.iter().map(|b: &u8| format!("{:02x}", b)).collect()
+}

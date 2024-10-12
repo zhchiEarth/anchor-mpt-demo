@@ -8,12 +8,11 @@ use {
     eyre::Result,
     solana_rpc_client::rpc_client,
     solana_sdk::{
-        // compute_budget::ComputeBudgetInstruction,
+        compute_budget::ComputeBudgetInstruction,
         instruction::{AccountMeta, Instruction},
         pubkey::Pubkey,
         signature::{Keypair, Signer},
-        system_program,
-        transaction,
+        system_program, transaction,
     },
     std::{env, str::FromStr},
 };
@@ -116,12 +115,9 @@ fn main() -> Result<()> {
         send_transaction(&client, &signer, &vec![ix], "append_proof ");
     }
 
-    // let ix = view_instruction(program_id, mpt_account);
-    // send_transaction(&client, &signer, &vec![ix], "view ");
-
-    // let uc_limit_ix = ComputeBudgetInstruction::set_compute_unit_limit(500_0000);
+    let uc_limit_ix = ComputeBudgetInstruction::set_compute_unit_limit(500_0000);
     let ix = verify_instruction(program_id, mpt_account, &proof);
-    send_transaction(&client, &signer, &vec![ix], "verify");
+    send_transaction(&client, &signer, &vec![uc_limit_ix, ix], "verify");
     Ok(())
 }
 
@@ -208,9 +204,9 @@ pub fn verify_instruction(
     }
 }
 
-fn to_hex_string(bytes: &[u8]) -> String {
-    bytes.iter().map(|b: &u8| format!("{:02x}", b)).collect()
-}
+// fn to_hex_string(bytes: &[u8]) -> String {
+//     bytes.iter().map(|b: &u8| format!("{:02x}", b)).collect()
+// }
 
 fn send_transaction(
     client: &rpc_client::RpcClient,
